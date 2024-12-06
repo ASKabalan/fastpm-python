@@ -2,7 +2,28 @@ import numpy
 
 from pmesh.pm import ParticleMesh
 from .background import MatterDominated
-from nbodykit.cosmology import Cosmology
+# from nbodykit.cosmology import Cosmology
+from jax_cosmo import Cosmology as JCosmology, background
+import numpy as np
+
+class Cosmology():
+    def __init__(self, cosmo: JCosmology):
+        self.cosmo = cosmo
+
+    @property
+    def H0(self):
+        return self.cosmo.h * 100
+    
+    @property
+    def Om0(self):
+        return self.cosmo.Omega_m
+    
+    def efunc(self, z):
+        return background.Esqr(self.cosmo, (1+z)**-1)**.5
+    
+    def Onu(self, z):
+        return np.zeros_like(z)
+    
 
 class StateVector(object):
     def __init__(self, solver, Q):
